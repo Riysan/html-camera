@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <title>HTML WEB CAMERA</title>
+</head>
+<body>
+    <div>
+        <button id="sbtn" class="btn btn-primary">シャッター</button>
+        <video id="view"></video>
+        <canvas id="memory"></canvas>
+    </div>
+    <style>
+        video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100;
+            background-size: cover;
+        }
+
+        canvas {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -200;
+            background-size: cover;
+        }
+    </style>
+    <script>
+        function getNowYMDhmsStr(){
+            const date = new Date()
+            const Y = date.getFullYear()
+            const M = ("00" + (date.getMonth()+1)).slice(-2)
+            const D = ("00" + date.getDate()).slice(-2)
+            const h = ("00" + date.getHours()).slice(-2)
+            const m = ("00" + date.getMinutes()).slice(-2)
+            const s = ("00" + date.getSeconds()).slice(-2)
+            return Y + M + D + h + m + s;
+        }
+
+        window.onload = () => {
+            const video  = document.querySelector("#view");
+            const canvas = document.querySelector("#memory");
+
+            const constraints = {
+                audio: false,
+                video: {
+                    width: 300,
+                    height: 200,
+                }
+            };
+            
+            navigator.mediaDevices.getUserMedia(constraints).then( (stream) => {
+                video.srcObject = stream;
+                video.onloadedmetadata = (e) => {
+                    video.play();
+                };
+            }).catch( (err) => {
+                console.log(err.name + ": " + err.message);
+                alert(err.name + ": " + err.message);
+            });
+            
+            document.querySelector("#sbtn").addEventListener("click", () => {
+                canvas.height = outerHeight;
+                canvas.width = outerWidth;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                var a = document.createElement("a");
+                a.href = canvas.toDataURL("image/jpeg", 0.85);
+                a.download = "IMG" + getNowYMDhmsStr() +".jpg";
+                a.click();
+            });
+        }
+    </script>
+</body>
+</html>
